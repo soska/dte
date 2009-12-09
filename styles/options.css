@@ -1,0 +1,84 @@
+.duperrific .icon32{
+	background:url(icon.png) no-repeat 2px 2px;
+}
+
+.checklist{
+	background:#fff;
+	padding:5px;
+	border:1px solid #dfdfdf;
+	-moz-border-radius:6px;
+}
+   
+.checklist .switches{
+	padding-left:10px;
+	color:#ccc;
+}
+
+.checklist ul.parent{
+	height:200px;
+	overflow:auto;
+}
+
+.checklist li{
+	border-bottom:1px solid #ddd;
+	line-height:25px; 
+	margin:0;         
+	position:relative;
+	padding-left:25px;
+}                 
+
+.checklist li input{
+	position:absolute;
+	left:4px;
+	top:5px;    
+}         
+
+.checklist li label{  
+	line-height:25px;
+	border-left:1px solid #ccc;
+	display:block;
+	padding-left:5px;
+}
+
+.checklist ul{
+	padding-left:10px;
+}
+
+.checklist ul.children {
+	padding-left:20px;
+}
+
+.checklist ul.children li{
+	border:none;
+}
+
+#footerText{
+	width:100%;
+}
+
+
+.warning{
+	background:#fc6;
+	border:1px solid #820;
+	padding:20px;
+}
+
+
+/*
+	Enhanced Controls
+*/
+
+.image-radio-group img{
+	padding:3px;
+	background:#f0f0f0;
+	border:1px solid #ddd;
+	margin-right:3px;
+	cursor:pointer;
+}
+
+.image-radio-group img.selected{
+	background:#21759B;
+	background:#EAF2FA;
+	border:1px solid #13455B;	
+	border:1px solid #21759B;	
+}
