@@ -62,6 +62,7 @@ require_once(DUP_CORE_PATH.'/theme.class.php');
 require_once(DUP_CORE_PATH.'/behavior.class.php');
 require_once(DUP_CORE_PATH.'/widget.class.php');
 require_once(DUP_CORE_PATH.'/component.class.php');
+require_once(DUP_CORE_PATH.'/csml/csml.php');
 
 /**
  *  Define the url for the core stylesheets
