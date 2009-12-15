@@ -1,0 +1,52 @@
+h1. Duperrific Theme Engine -- NSFAQ (not so frequently asked questions)      
+
+h2. 1. What is this?
+
+The Duperrific Theme Egine is yet another WordPress Theme Framework
+
+
+h2. 2. What is the difference with the other Theme Frameworks?
+
+Well, most of them are only simple themes with a lot of hooks, not a real programming framework. Duperrific Theme Engine is (or tries very to be) a real programming framework, that tries to enhance the experience of programming WP Themes using MVCish paradigms.
+
+h2. 3. What do you mean with MVCish?
+
+MVC is a popular software programming pattern used in popular application frameworks like Ruby on Rails, CakePHP, Cappuccino and even Cocoa. It stands for Model-View-Controller, and it is all about separating the data-access, application logic and graphic interface layers. For more accurate info, Google is your friend.
+
+The 'ish' part means that I'm doing my best to implement OOP and the MVC pattern to a software which really doesn't like to be separated into layers. The result is not _pure_ MVC, but it has a ressemblance.
+
+h2. 4. Why do I need all this complexity in my cat's blog?
+
+Wordpress Themes were originally conceived just as something to add nice presentation to simple blogs. If everything you need is a simple list of posts and a sidebar, then everithing you need to do is a very simple theme.
+
+But as the features grow, the complexity grows exponentially. You start making your theme SEO ready, then you need that some featured posts, then you need a thumbnail image for your post, a settings page, another loop, one widget area, another widget area, another settings page… in no time, your code has grow to the point where is unreadable and maintenance is a nightmare.
+
+The Duperrific Theme Engine approaches themes as mini-applications that runs inside your WordPress installation. Some advanced features like widget areas, settings pages, custom field controls, multiple loops are already supported and made very easy by the framework.
+
+h2. 5. This is a child Theme?
+
+No, when you download the Duperrific Theme Engine from GitHub, what you download is a starter theme, the real framework is in the DTE folder. It is initialized via the functions.php file. You could develop from here or start a completely new theme and include the DTE there.
+
+h2. 6. Can I have the DTE folder anywhere else?
+
+Yes! I like, for example, place it in the wp-content folder, so it can be shared by more than one theme. Just tell where is it going to be in your functions.php folder and declare some constants. Here's an example:
+                                
+<pre><code>
+<?php
+define('DUP_CORE_STYLES_URL',"http://yourdomain.com/wp-content/dte/styles/");
+define('DUP_CORE_JS_URL',"http://yourdomain.com/wp-content/dte/js/");
+include("/path/to/your/site/wp-content/dte/duperrific.php");
+$blog = new Blog('yourThemeName');
+extract($blog->getHelpers());
+extract($blog->getTextDomain());
+?>                                                            
+</code></pre>
+
+h2. 7. Can I Use it in my own themes?
+
+Yes! Please do it and, if you find is useful – or not – you can tell me (I'm "@soska":http://twitter.com/soska on Twitter)
+
+
+h2. 8. Can't you write better documentation?
+
+The code and the example are well commented, but I'll try to do better documentation in the future. In the mean time, you could help me sending real Frequently Asked Questions.
