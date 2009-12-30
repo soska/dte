@@ -47,6 +47,10 @@ h2. 7. Can I Use it in my own themes?
 Yes! Please do it and, if you find is useful – or not – you can tell me (I'm "@soska":http://twitter.com/soska on Twitter)
 
 
-h2. 8. Can't you write better documentation?
+h2. 8. Where I can grab an example?
 
-The code and the example are well commented, but I'll try to do better documentation in the future. In the mean time, you could help me sending real Frequently Asked Questions.
+Grab the starter theme for this "other respository":http://github.com/soska/DTEStarterTheme, and start playing with it.
+
+h2. 9. Can't you write better documentation?
+
+The code and the example are well commented, but I'll try to do better documentation in the future. In the mean time, you could help me by playing with it and sending really frequently asked questions by email to arm.sosa [at] gmail [dot] com or over Twitter.
