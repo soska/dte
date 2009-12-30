@@ -49,7 +49,7 @@ Yes! Please do it and, if you find is useful – or not – you can tell me (I'm
 
 h2. 8. Where I can grab an example?
 
-Grab the starter theme for this "other respository":http://github.com/soska/DTEStarterTheme, and start playing with it.
+Grab the starter theme for this "other respository":http://github.com/soska/DTEStarterTheme/downloads, and start playing with it.
 
 h2. 9. Can't you write better documentation?
 
