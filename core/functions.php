@@ -1,8 +1,23 @@
 <?php
+
+class Engine{
+	static $controller;
+	
+	function start($name = null){
+		self::$controller = new Controller($name);
+	}
+	
+	function run(){
+		self::$controller->dispatch();
+	}
+	
+}
+
 /*
 	
 */
 function dupLoad($className,$default = DUP_DEFAULTS_PATH,$app=DUP_APP_PATH){
+	$className = strtolower($className);
 	$path = "/$className.php";	
 	$defaultPath = $default.$path;
 	$path = $app.$path;
@@ -48,17 +63,42 @@ if (!function_exists('pr')) {
 	function pr($var){		
 		debug($var,false);
 	}
+}
+
+if (!function_exists('pd')) {
 	function pd($var){
 		debug($var);die;
 	}
-	function hpr($var){
-		pr(htmlspecialchars($var));
-	}
+}
+
+if (!function_exists('jpr')) {
 	function jpr($var,$name = 'jprDebug'){
 		$var = json_encode($var);
 		echo "<script type=\"text/javascript\" charset=\"utf-8\">var $name = $var; console.debug($name);</script>";
 	}
 }
+
+if (!function_exists('hpr')) {
+	function hpr($var){
+		pr(htmlspecialchars($var));
+	}
+}
+
+if (!function_exists('str_contains')) {
+	function str_contains($pattern,$str){
+		$p = strpos($str,$pattern);
+		return ($p !== false);
+	}
+}
+if (!function_exists('str_starts_with')) {
+	function str_starts_with($pattern,$str){
+		$p = strpos($str,$pattern);
+		return ($p === 0);
+	}
+}
+
+
+
 
 /**
 * This function can be thought of as a hybrid between PHP's array_merge and array_merge_recursive. The difference

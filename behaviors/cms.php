@@ -14,6 +14,14 @@ class CmsBehavior extends DuperrificBehavior{
 	 */
 	var $parentPageId;
 	
+	function getPage($pageId){
+		$options = array(
+			'post_type'=>'page',
+		);		
+		$loop = $this->Controller->loop(array('page_id'=>$pageId,'post_type'=>'page'));
+		return  $loop;
+	}
+	
 	/**
 	 * Set's the current parent page
 	 *
@@ -22,7 +30,7 @@ class CmsBehavior extends DuperrificBehavior{
 	 * @return void
 	 * @author Armando Sosa
 	 */
-	function setParentPage(&$blog, $id = null){
+	function setParentPage($id = null){
 		if (!is_int($id)) {
 			global $post;
 			$id = $post->ID;
@@ -38,7 +46,7 @@ class CmsBehavior extends DuperrificBehavior{
 	 * @return void
 	 * @author Armando Sosa
 	 */
-	function pageChilds(&$blog,$options = null){
+	function pageChilds($options = null){
 		if ($options && !is_array($options)) {
 			$options = array('post_parent'=>$options);
 		}else{
@@ -49,7 +57,7 @@ class CmsBehavior extends DuperrificBehavior{
 			'orderby'=>'menu_order',
 			'order'=>'asc'),$options
 		);					
-		return  $blog->loop($options)->have_posts();		
+		return  $this->Controller->loop($options)->have_posts();		
 	}
 	
 	/**
@@ -61,11 +69,11 @@ class CmsBehavior extends DuperrificBehavior{
 	 * @return void
 	 * @author Armando Sosa
 	 */
-	function pageTeaser(&$blog,$more_link_text = null, $teaserCustomField = 'TeaserText') {
+	function pageTeaser($more_link_text = null, $teaserCustomField = 'TeaserText') {
 		global $more,$post;
 		$oldMore = $more; // let's try not to break whatever Wp uses this variable for
 		$more = 0; // this hack allows to use the teaser feature on pages
-		$teaserText = $blog->field($teaserCustomField);
+		$teaserText = $this->Controller->field($teaserCustomField);
 		if (! empty($teaserText)) {
 			echo apply_filters('the_content', $teaserText);
 			if ( ! empty($more_link_text) )

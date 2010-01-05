@@ -53,11 +53,13 @@ define('DUP_SKINS_PATH',DUP_STYLES_PATH.'/skins');
 
 define('DUP_VIEWS_PATH',TEMPLATEPATH.'/views');
 define('DUP_ELEMENTS_PATH',DUP_VIEWS_PATH.'/elements');
+define('DUP_LAYOUTS_PATH',DUP_VIEWS_PATH.'/layouts');
 
 
 require_once(DUP_CORE_PATH.'/functions.php');
 require_once(DUP_CORE_PATH.'/duperrific.class.php');
 require_once(DUP_CORE_PATH.'/controller.class.php');
+require_once(DUP_CORE_PATH.'/view.class.php');
 require_once(DUP_CORE_PATH.'/theme.class.php');
 require_once(DUP_CORE_PATH.'/behavior.class.php');
 require_once(DUP_CORE_PATH.'/widget.class.php');

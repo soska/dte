@@ -13,28 +13,34 @@ class DuperrificController extends Duperrific{
 	 * @var string
 	 */
 	var $alias = 'blog';
+
+	/**
+	 * Current action being performed
+	 *
+	 * @var string
+	 */
+	var $action;
 	
 	/**
 	 * Holds a Theme Object
 	 *
 	 * @var string
 	 */
-	var $theme;
-	
+	var $viewClass = 'View';
+
+	/**
+	 * Holds a Theme Object
+	 *
+	 * @var string
+	 */
+	var $Theme;
 	
 	/**
 	 * helpers an array of helpers to autoload
 	 *
 	 * @var string
 	 */
-	var $helpers = array('html', 'options');
-	
-	/**
-	 * holds internal array of helpers
-	 *
-	 * @var string
-	 */
-	private $__helpers;	
+	var $helpers = array('html');
 
 	/**
 	 * components to autoload;
@@ -93,71 +99,45 @@ class DuperrificController extends Duperrific{
 		
 	function __construct($name,$alias = null){
 		new ThemeController($name,$this);
+		
+		$viewClass = $this->viewClass;
+		$viewFile = strtolower($viewClass);
+		if (!dupLoad($viewFile)) {
+			$viewClass .= 'View';
+			$viewFile = "view.".$viewFile;
+			if (!dupLoad($viewFile)) {
+				trigger_error("$viewClass class missing (expected on $viewFile)",E_USER_NOTICE);
+				exit;
+			}
+		}
+
+		new $viewClass($this);
+
+
 		if (is_admin()) {
 			$this->__adminInit();
 		}
+
 		$this->__loadBehaviors();
-		$this->__loadHelpers();
+		$this->View->__loadHelpers();
 		$this->__loadComponents();
+
 		if ($alias) {
 			$this->alias = $alias;
 		}
-		
-		add_action('init',array(&$this,'onInit'));
-		
-		$this->setup();
+
+		parent::__construct();
 	}
 	
 	function __call($method,$arguments){
 		if (isset($this->__mappedMethods[$method])) {
-			$object = $this->__mappedMethods[$method];
-			$argumentsCount = count($arguments);
-			switch ($argumentsCount) {
-				case 0:
-					return $this->__behaviors[$object]->$method($this);
-					break;
-
-				case 1:
-					return $this->__behaviors[$object]->$method($this,$arguments[0]);
-					break;
-				
-				case 2:
-					return $this->__behaviors[$object]->$method($this,$arguments[0],$arguments[1]);
-					break;
-				
-				case 3:
-					return $this->__behaviors[$object]->$method($this,$arguments[0],$arguments[1],$arguments[2]);
-					break;
-				
-				case 4:
-					return $this->__behaviors[$object]->$method($this,$arguments[0],$arguments[1],$arguments[2],$arguments[3]);
-					break;
-				
-				default:
-					return $this->__behaviors[$object]->$method($this,$arguments);
-					break;
-			}
+			$object = $this->__mappedMethods[$method];			
+			return call_user_func_array(array($this->__behaviors[$object],$method),$arguments);
 		}
-	}
-	
-	/**
-	 * runs after the object is constructed
-	 *
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	function setup(){
 		
+		trigger_error("Controller::$method is not a valid function",E_USER_NOTICE);
 	}
 	
-	/**
-	 * Callback
-	 *
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	function onInit(){
-	}
 
 	/**
 	 * Initialize hooks for wp-admin
@@ -210,38 +190,7 @@ class DuperrificController extends Duperrific{
 	function registerBehavior(&$behavior){
 		$this->__behaviors[$behavior->name] =& $behavior; 
 	}
-	
-	/**
-	 * Load every helper defined in DuperrificBlog::helpers
-	 *
-	 * @param array $helpers 
-	 * @return void
-	 * @author Armando Sosa
-	 */	
-	function __loadHelpers($helpers = null){
-		if (!$helpers) {
-			$helpers = $this->helpers;
-		}
-		foreach ($helpers as $helper) {
-			$this->__loadHelper($helper);
-		}
-		return $this->__helpers;
-	}
-	
-	/**
-	 * Loads a helper
-	 *
-	 * @param string $helper 
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	
-	function __loadHelper($helper){
-		$helper = underscorize($helper);
-		require_once(DUP_PATH."/helpers/$helper.php");
-		$className=ucfirst($helper)."Helper";
-		$this->__helpers[$helper] = new $className($this);
-	}
+
 	/**
 	 * undocumented function
 	 *
@@ -277,27 +226,6 @@ class DuperrificController extends Duperrific{
 		}
 	}
 		
-	/**
-	 * Render a File
-	 *
-	 * @param string $name 
-	 * @param mixed $helpers 
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	function renderFile($name,$vars=array(),$helpers=null){
-		// include default helpers
-		if (!($helpers === false)) {
-			extract($this->getHelpers());
-		}
-		// extract vars passed
-		extract((Array) $vars);
-		// initialize magical variable $_e with the theme name
-		extract($this->getTextDomain());
-		$_e = $this->theme->name.".theme";
-		${$this->alias} = &$this;
-		include($name);
-	}
 	
 	/**
 	 * variable for the text domain
@@ -308,66 +236,83 @@ class DuperrificController extends Duperrific{
 	 */
 	function getTextDomain($domain = '_e'){
 		return array(
-				$domain => $this->theme->name.".theme",
+				$domain => $this->Theme->name.".theme",
 			);
 	}
 	
+	/**
+	 * starts WP's localization 
+	 *
+	 * @return void
+	 * @author Armando Sosa
+	 */
 	function localize(){
-		extract($this->getTextDomain());
-		load_theme_textdomain($_e,DUP_L10N_PATH);
+		load_theme_textdomain($this->getTextDomain(),DUP_L10N_PATH);
 	}
 	
 	/**
-	 * undocumented function
+	 * dispatch the correct view
 	 *
-	 * @param string $helpers 
 	 * @return void
 	 * @author Armando Sosa
 	 */
-	function getHelpers($helpers = null){
-		if (!is_array($helpers)) {
-			$helpers = $this->__helpers;
-		}else{
-			$helpers = $this->__loadHelpers($helpers);
+	function dispatch(){
+		$actions = $this->getCurrentPageTypes();
+		$actions[] = 'index';
+		foreach ($actions as $action) {
+			
+			$method = "on".ucfirst($action);			
+			
+			if ($action == 'attachment') {
+				global $post;
+				list($attachmentType)  = explode('/',$post->post_mime_type);
+				$attachmentMethod = "on".ucfirst($attachmentType);
+				if ($this->__hasMethod($attachmentMethod)) {
+					$method = $attachmentMethod;
+					$action = $attachmentType;
+				}
+			}
+
+			$this->action  = $action;
+
+			if ($this->__hasMethod($this,$method)) {
+				global $post;
+				$this->$method($post);
+				if ($this->View->autoRender && !$this->View->didRender && $this->View->exists($action)) {
+					$this->View->render($action);				
+				}
+				break;
+			}elseif($this->View->exists($action)){
+				$this->View->render($action);					
+				break;
+			}
 		}
-		return $helpers;		
+	}
+	
+	function __hasMethod($object, $method = null){
+		if (!is_object($object)) {
+			$method = $object;
+			$object = $this;
+		}
+
+		if (method_exists($object, $method) || array_key_exists($method, $this->__mappedMethods)) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	
 	/**
-	 * replacement for WP's native get_* functions
+	 * sets a view variable
 	 *
-	 * @param string $name 
 	 * @return void
 	 * @author Armando Sosa
 	 */
-	function get($name,$vars = array()){
-		extract($this->getHelpers());
-		extract($this->getTextDomain());
-		$this->renderFile(STYLESHEETPATH."/$name.php",$vars);
+	function set($key,$value = null){
+		return $this->View->set($key,$value);
 	}
-	/**
-	 * Renders a View
-	 *
-	 * @param string $name 
-	 * @param mixed $helpers 
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	function renderView($name,$vars=array(),$helpers=null){
-		$this->renderFile(DUP_VIEWS_PATH."/$name.php",$vars);
-	}
-	/**
-	 * Renders a view element
-	 *
-	 * @param string $name 
-	 * @param mixed $helpers 
-	 * @return void
-	 * @author Armando Sosa
-	 */
-	function element($name,$vars = array()){
-		$this->renderFile(DUP_ELEMENTS_PATH."/$name.php",$vars);
-	}
+
 		
 	/**
 	 * undocumented function
@@ -376,14 +321,14 @@ class DuperrificController extends Duperrific{
 	 * @author Armando Sosa
 	 */	
 	function _save(){
-		$this->theme->data = $_POST;
-		$formName = $this->theme->data['form-name'];
+		$this->Theme->data = $_POST;
+		$formName = $this->Theme->data['form-name'];
 		$method = $formName."Save";
-		if ($this->theme->beforeSave()) {
-			if (method_exists($this->theme,$method)){
-				$this->theme->{$method}();
+		if ($this->Theme->beforeSave()) {
+			if (method_exists($this->Theme,$method)){
+				$this->Theme->{$method}();
 			}else{
-				$this->theme->save();
+				$this->Theme->save();
 			}			
 		}else{
 			/*
@@ -399,20 +344,20 @@ class DuperrificController extends Duperrific{
 	 * @author Armando Sosa
 	 */
 	function _restore(){
-		$this->theme->data = $_POST;
-		$formName = $this->theme->data['formName'];
+		$this->Theme->data = $_POST;
+		$formName = $this->Theme->data['formName'];
 		$method = $formName."Restore";
-		if (method_exists($this->theme,$method)){
-			$this->theme->{$method}();
+		if (method_exists($this->Theme,$method)){
+			$this->Theme->{$method}();
 		}else{
-			$this->theme->restore();
+			$this->Theme->restore();
 		}			
 	}
 	
 	function _reset_widgets(){
-		$this->theme->data = $_POST;
-		$formName = $this->theme->data['formName'];		
-		$this->theme->resetWidgets();
+		$this->Theme->data = $_POST;
+		$formName = $this->Theme->data['formName'];		
+		$this->Theme->resetWidgets();
 	}
 
 	/**
@@ -427,8 +372,8 @@ class DuperrificController extends Duperrific{
 			list($context,$name) = explode('.',$context);
 		}
 		
-		if (isset($this->theme->options[$context][$name])) {
-			$value = $this->theme->options[$context][$name];		
+		if (isset($this->Theme->options[$context][$name])) {
+			$value = $this->Theme->options[$context][$name];		
 			if (is_string($value) && $stripslashes) {
 				$value = stripslashes($value);
 			}
@@ -464,12 +409,7 @@ class DuperrificController extends Duperrific{
 	
 	}	
 
-		
-	/*
-		Helper Functions
-	*/
-	
-	
+
 	/**
 	 * undocumented function
 	 *
@@ -489,16 +429,7 @@ class DuperrificController extends Duperrific{
 		return get_post_meta($post->ID,$key,$unique);
 	}
 	
-	/**
-	 * undocumented class
-	 *
-	 * @package default
-	 * @author Armando Sosa
-	 */
-	function getBodyClass($classes = null){
-		// Wordpress Added a simlar function to the core, so this is not necessary anymore				
-		body_class($classes);
-	}
+
 	
 	/**
 	 * undocumented function
@@ -511,37 +442,16 @@ class DuperrificController extends Duperrific{
 	 */
 	function getCurrentPageType($default='home',$returnFirstCoincidence = true,$availablePages = null){
 		if (!$availablePages) { //make this available as a parameter, just in case dev want to change priority order
-			$availablePages=array(
-
-					'home',
-					'single',
-					'paged',					
-					'page',
-					'year',
-					'month',
-					'day',
-					'date',					
-					'time',
-					'author',
-					'category',
-					'tag',
-					'tax',
-					'archive',										
-					'search',
-					'feed',
-					'comment_feed',
-					'trackback',
-					'home',
-					'404'=>'not-found',
-					'admin',
-					'attachment',
-					'singular',
-					'robots',
-					'posts_page',
+			$possiblePages=array(
+					'home','attachment','single','paged','page','year','month','day',
+					'date','time','author','category','tag','tax','archive',
+					'search','feed','comment_feed','trackback',
+					'404'=>'not-found','admin','singular',
+					'robots','posts_page',
 				);
 		}
 		$pageNames=array();
-		foreach ($availablePages as $key => $pageName) {
+		foreach ($possiblePages as $key => $pageName) {
 			$functionName="is_".$pageName;			
 			if (is_string($key)) {
 				$functionName="is_".$key;
@@ -553,6 +463,7 @@ class DuperrificController extends Duperrific{
 				$pageNames[] = $pageName;
 			}
 		}
+		
 		
 		if (!empty($pageNames)) {
 			return $pageNames;

@@ -12,11 +12,11 @@ class DuperrificThemeController extends Duperrific {
 	var $name;
 	
 	/**
-	 * Blog object proxy
+	 * Controller object proxy
 	 *
 	 * @var string
 	 */
-	var $blog;
+	var $Controller;
 	
 	/**
 	 * Hooks
@@ -53,6 +53,9 @@ class DuperrificThemeController extends Duperrific {
 	 * @var string
 	 */
 	var $widgetAreas = 'widget-areas';
+
+
+	var $support = array();
 
 	/**
 	 * set default options for widget-ready areas
@@ -113,11 +116,15 @@ class DuperrificThemeController extends Duperrific {
 		Constructor
 	*/
 	
-	function __construct($name, &$blog){
+	function __construct($name, &$Controller){
 		$this->name = $name;
-		$this->blog = &$blog;
-		$blog->theme = &$this;
+		$this->Controller = &$Controller;
+		$Controller->Theme = &$this;
+
+		$this->__supportFeatures();
+
 		$this->initOptions();
+
 		if (is_admin()) {
 			$this->initPanels();		
 		}
@@ -146,6 +153,13 @@ class DuperrificThemeController extends Duperrific {
 	 */
 	function onInit(){
 		
+	}
+	
+	function __supportFeatures(){
+		$this->support = (array) $this->support;
+		foreach ($this->support as $feature) {
+			add_theme_support( $feature );				
+		}
 	}
 
 		
@@ -261,8 +275,8 @@ class DuperrificThemeController extends Duperrific {
 		if (is_string($this->widgetAreas)) {
 			$path = DUP_CONFIG_PATH."/{$this->widgetAreas}.php";
 			if (file_exists($path)) {
-				$x = $this->blog->getTextDomain();
-				extract($this->blog->getTextDomain());
+				$x = $this->Controller->getTextDomain();
+				extract($this->Controller->getTextDomain());
 				include $path;
 			}else{
 				$this->widgetAreas = array();
@@ -308,7 +322,7 @@ class DuperrificThemeController extends Duperrific {
 				// $default holds the view that is rendered in case that no widget is set for this area
 				$default = ($default)?$default:$w['default'];			
 		    	if ($default){
-					$this->blog->renderView("sidebars/$default",array('widget'=>$w));
+					$this->Controller->renderView("sidebars/$default",array('widget'=>$w));
 				}
 		    };
 			echo ($hasWidgets)?$w['after']:'';		}
@@ -395,7 +409,7 @@ class DuperrificThemeController extends Duperrific {
 	 * @author Armando Sosa
 	 */
 	function includePanel($name,$vars=null){
-		$this->blog->renderView("panels/$name",$vars);
+		$this->Controller->renderView("panels/$name",$vars);
 	}
 		
 	/**
