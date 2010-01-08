@@ -89,10 +89,10 @@
 		<mkdir dir="${builddir}" />
 		<echo msg="Making directory ${builddir-themes}" />
 		<mkdir dir="${builddir-themes}" />
-		<echo msg="Making  theme directory ${builddir-themes}/${theme-name}" />
-		<mkdir dir="${builddir-themes}/${theme-name}" />
-		<echo msg="Making DTE for theme directory ${builddir-themes}/${theme-name}/dte" />
-		<mkdir dir="${builddir-themes}/${theme-name}/dte" />
+		<echo msg="Making  theme directory ${builddir-themes}${theme-name}" />
+		<mkdir dir="${builddir-themes}${theme-name}" />
+		<echo msg="Making DTE for theme directory ${builddir-themes}${theme-name}/dte" />
+		<mkdir dir="${builddir-themes}${theme-name}/dte" />
 	</target>
 
 	<target name="build-theme" depends="prepare-theme">
