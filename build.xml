@@ -5,6 +5,7 @@
 	<property name="package"  value="${phing.project.name}" override="true" />
 	<property name="builddir" value="./build/" override="true" />
 	<property name="builddir-dte" value="${builddir}dte/" override="true" />
+	<property name="docsdir" value="${builddir-dte}doc/" override="true" />
 	<property name="package-name" value="${builddir}${package}-last.tar.gz" override="true" />
 	<property name="builddir-themes" value="${builddir}themes/" override="true" />
 	<property name="theme-name" value="test" override="false"/>
@@ -28,6 +29,15 @@
 		<include name="styles/*.png" />
 		<include name="styles/*.gif" />
 		<include name="js/*.js" />
+	</fileset>
+	<fileset dir="." id="dte-sourcecode">
+		<include name="engine.php" />
+		<include name="behaviors/*.php" />
+		<include name="components/*.php" />
+		<include name="core/*.php" />
+		<include name="core/csml/*.php" />
+		<include name="core/defaults/*.php" />
+		<include name="helpers/*.php" />
 	</fileset>
 
 	<fileset dir="${template-dir}" id="template">
@@ -55,6 +65,8 @@
 		<mkdir dir="${builddir}" />
 		<echo msg="Making directory ${builddir-dte}" />
 		<mkdir dir="${builddir-dte}" />
+		<echo msg="Making directory ${docsdir}" />
+		<mkdir dir="${docsdir}" />
 	</target>
 
 	<target name="build" depends="prepare">
@@ -65,7 +77,7 @@
 	</target>
 
 
-	<target name="package" depends="build">
+	<target name="package" depends="build,doc">
 		<echo msg="Creating archive..." />
 		<tar destfile="${package-name}"  basedir="${builddir-dte}" compression="gzip"/>
 		<echo msg="Files copied and compressed in build directory OK!" />
@@ -115,5 +127,20 @@
 		<echo msg="Copying files to build directory..." />
 		<foreach list="${theme-name}" param="theme-name" target="package-theme" />
 	</target>
+	<target name="lint" description="Check syntax of source.">
+    <phplint>
+      <fileset refid="dte-sourcecode" />
+    </phplint>
+  </target>
 	
+	<target name="doc" depends="lint,prepare" description="Generate API docs.">
+		<phpdoc title="QueryPath ${version}"
+			sourcecode="yes"
+			destdir="${docsdir}"
+			output="HTML:frames:DOM/phphtmllib"
+			quiet="true"
+		>
+			<fileset refid="dte-sourcecode"/>
+		</phpdoc>
+	</target>
 </project>
