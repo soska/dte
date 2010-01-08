@@ -1,4 +1,9 @@
-<?php $blog->get('header'); ?>
+<?php 
+/**
+  * index file to @@Themename@@ 
+  */
+
+$blog->get('header'); ?>
 		<div id="content" >
 			<?php
 				if (have_posts()){

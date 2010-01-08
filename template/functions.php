@@ -1,4 +1,7 @@
-<?php
+<?php 
+/**
+  * Functions file to @@Themename@@ 
+  */
 
 include("dte/engine.php");	
 
