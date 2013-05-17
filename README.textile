@@ -54,3 +54,8 @@ Grab the starter theme for this "other respository":http://github.com/soska/DTES
 h2. 9. Can't you write better documentation?
 
 The code and the example are well commented, but I'll try to do better documentation in the future. In the mean time, you could help me by playing with it and sending really frequently asked questions by email to arm.sosa [at] gmail [dot] com or over Twitter.
+
+
+h2. 10 What is the diferense to "Soska Edition"
+
+Minimal patches to "make" more "fast" the devel of themes
