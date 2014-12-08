@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<project name="DTE" default="dist" basedir="." description="Dupperrific Theme Engine, MVC Theme engine for wordpress">
+
+	<property file="./build.properties" />
+	<property name="package"  value="${phing.project.name}" override="true" />
+	<property name="builddir" value="./build/" override="true" />
+	<property name="builddir-dte" value="${builddir}dte/" override="true" />
+	<property name="docsdir" value="${builddir-dte}doc/" override="true" />
+	<property name="package-name" value="${builddir}${package}-last.tar.gz" override="true" />
+	<property name="builddir-themes" value="${builddir}themes/" override="true" />
+	<property name="theme-name" value="test" override="false"/>
+	<property name="template-dir" value="./template/" override="false"/>
+
+	<fileset dir="." id="allfiles">
+		<include name="**" />
+	</fileset>
+
+	<fileset dir="." id="dte">
+		<include name="engine.php" />
+		<include name="README.textile" />
+		<include name="licence.txt" />
+		<include name="behaviors/*.php" />
+		<include name="components/*.php" />
+		<include name="core/*.php" />
+		<include name="core/csml/*.php" />
+		<include name="core/defaults/*.php" />
+		<include name="helpers/*.php" />
+		<include name="styles/*.css" />
+		<include name="styles/*.png" />
+		<include name="styles/*.gif" />
+		<include name="js/*.js" />
+	</fileset>
+	<fileset dir="." id="dte-sourcecode">
+		<include name="engine.php" />
+		<include name="behaviors/*.php" />
+		<include name="components/*.php" />
+		<include name="core/*.php" />
+		<include name="core/csml/*.php" />
+		<include name="core/defaults/*.php" />
+		<include name="helpers/*.php" />
+	</fileset>
+
+	<fileset dir="${template-dir}" id="template">
+		<include name="*.php" />
+		<include name="style.css" />
+		<include name="css/*.css" />
+		<include name="imgs/*.png" />
+		<include name="imgs/*.gif" />
+		<include name="imgs/*.jpg" />
+		<include name="js/*.js" />
+		<include name="app/*.php" />
+		<include name="app/config/*.php" />
+		<include name="app/I10n/*.mo" />
+		<include name="app/I10n/*.po" />
+		<include name="views/*.php" />
+		<include name="views/*.php" />
+		<include name="views/elements/*.php" />
+		<include name="views/panels/*.php" />
+		<include name="views/sidebars/*.php" />
+		<include name="views/widgets/*.php" />
+	</fileset>
+
+	<target name="prepare" description="make the dirs ned to the build">
+		<echo msg="Making directory ${builddir}" />
+		<mkdir dir="${builddir}" />
+		<echo msg="Making directory ${builddir-dte}" />
+		<mkdir dir="${builddir-dte}" />
+		<echo msg="Making directory ${docsdir}" />
+		<mkdir dir="${docsdir}" />
+	</target>
+
+	<target name="build" depends="prepare">
+		<echo msg="building DTE" />
+		<copy todir="${builddir-dte}">
+			<fileset refid="dte" />
+		</copy>
+	</target>
+
+
+	<target name="package" depends="build,doc">
+		<echo msg="Creating archive..." />
+		<tar destfile="${package-name}"  basedir="${builddir-dte}" compression="gzip"/>
+		<echo msg="Files copied and compressed in build directory OK!" />
+	</target>
+	
+	<target name="prepare-theme" description="make the dirs ned to the build">
+		<property name="theme-name" value="${theme-name}" override="true"/>
+		<echo msg="Making directory ${builddir}" />
+		<mkdir dir="${builddir}" />
+		<echo msg="Making directory ${builddir-themes}" />
+		<mkdir dir="${builddir-themes}" />
+		<echo msg="Making  theme directory ${builddir-themes}${theme-name}" />
+		<mkdir dir="${builddir-themes}${theme-name}" />
+		<echo msg="Making DTE for theme directory ${builddir-themes}${theme-name}/dte" />
+		<mkdir dir="${builddir-themes}${theme-name}/dte" />
+	</target>
+
+	<target name="build-theme" depends="prepare-theme">
+		<echo msg="building  the ${theme-name} Theme" />
+		<copy todir="${builddir-themes}/${theme-name}">
+			<fileset refid="template" />
+			<filterchain>
+				<replacetokens begintoken="@@" endtoken="@@">
+					<token key="Themename" value="${theme-name}" />
+				</replacetokens>
+			</filterchain>
+		</copy>
+		<echo msg="building DTE" />
+		<copy todir="${builddir-themes}/${theme-name}/dte">
+			<fileset refid="dte" />
+		</copy>
+	</target>
+
+
+	<target name="package-theme" depends="build-theme">
+		<echo msg="Creating archive..." />
+		<tar destfile="${builddir-themes}/${theme-name}.tar.gz"  basedir="${builddir-themes}/${theme-name}" compression="gzip"/>
+		<echo msg="Files copied and compressed in build directory OK!" />
+	</target>
+
+	<target name="clean">
+		<echo msg="Cleaning..." />
+		<delete dir="${builddir}" includeemptydirs="true" verbose="true" failonerror="true" />
+	</target>
+
+	<target name="dist" depends="prepare">
+		<echo msg="Copying files to build directory..." />
+		<foreach list="${theme-name}" param="theme-name" target="package-theme" />
+	</target>
+	<target name="lint" description="Check syntax of source.">
+    <phplint>
+      <fileset refid="dte-sourcecode" />
+    </phplint>
+  </target>
+	
+	<target name="doc" depends="lint,prepare" description="Generate API docs.">
+		<phpdoc title="QueryPath ${version}"
+			sourcecode="yes"
+			destdir="${docsdir}"
+			output="HTML:frames:DOM/phphtmllib"
+			quiet="true"
+		>
+			<fileset refid="dte-sourcecode"/>
+		</phpdoc>
+	</target>
+</project>
